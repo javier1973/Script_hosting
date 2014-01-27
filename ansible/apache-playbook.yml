@@ -1,0 +1,11 @@
+- hosts: all
+  remote_user: root
+  sudo: yes
+
+  tasks:
+  - name: install apache2
+    apt: name=apache2 state=present
+
+  - name: install unzip
+    apt: name=unzip state=present
+      
