@@ -1,0 +1,28 @@
+# File: setup.yml
+# Part: Bind
+#
+# Description: Instala y configura Bind
+#
+# Parameters:
+# - $vhost : virtualhost name
+#
+# Dependencies ([part:]type:filename):
+# - vars:vars.yml
+# - handlers:handlers.yml
+# 
+#
+# OS : Debian
+
+- name: Bind | instala bind9 
+  apt: pkg={{ item }} state={{ bind_pkg_state }}
+  with_items: bind_pkgs
+  tags: package
+
+  
+- name: Zona | incluir cona del nuevo dominio
+  assemble: src=repository_basedir/bind/vars/nemd.con.local.j2 dest=bind_config_basepath/named.conf.local delimiter='### NUEVAS ZONAS ###'
+  tags: configure
+  
+- name: directa | crear archivo zona dierecta
+
+  

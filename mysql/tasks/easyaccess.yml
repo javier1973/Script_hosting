@@ -1,0 +1,18 @@
+---
+# File: easyaccess.yml
+# Part: MySQL
+#
+# Descripción: Set a user's default mysql-client IDs as root. DO NOT DO THIS IS A PRODUCTION SERVER.
+#
+# Dependencies ([part:]type:filename):
+# - tasks:setup.yml
+# - vars:main.yml (mysql_root_password variable)
+# - $user variable from ansible playbook.
+#
+# OS: Debian
+
+- name: MySQL | Config for easy access as user $user
+  template:
+    src=$repository_basedir/mysql/templates/user_my.cnf.j2
+    dest=/home/$user/.my.cnf
+    owner=$user mode=0600

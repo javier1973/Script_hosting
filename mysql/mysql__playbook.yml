@@ -1,0 +1,15 @@
+---
+
+- hosts: all
+  user: root
+  sudo: True
+
+  vars:
+    repository_basedir: /home/javi/git/Script_hosting
+    mysql_root_password: MJacksonIsNotDead
+
+  tasks:
+  - include: $repository_basedir/mysql/tasks/setup.yml
+
+  handlers:
+  - include: $repository_basedir/mysql/handlers/handlers.yml

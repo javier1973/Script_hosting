@@ -1,0 +1,16 @@
+---
+# File: php.yml
+# Part: MySQL
+#
+# Descripción: Install PHP5 - MySQL bindings
+#
+# Dependencias ([part:]type:filename):
+# - php:tasks:setup.yml
+#
+# OS : Debian
+
+- name: MySQL - install PHP5 bindings
+  apt: pkg=$item state=installed
+  with_items:
+    - php5-mysql
+

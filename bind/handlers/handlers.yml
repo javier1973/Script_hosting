@@ -1,0 +1,8 @@
+- name: apache-start
+  service: name=bind9 start=started
+
+- name: apache-restart
+  service: name=bind9 state=restarted
+
+- name: apache-reload
+  service: name=bind9 state=reloaded

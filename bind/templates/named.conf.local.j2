@@ -1,0 +1,6 @@
+## {{ ansible_managed }}
+
+zone "{{ vhost }}" {
+    type master;
+    file "/var/cache/bind/db.{{ vhost }}";
+    };

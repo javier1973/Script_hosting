@@ -1,0 +1,25 @@
+- hosts: all
+  remote_user: root
+  sudo: yes
+  
+  
+  vars:
+    repository_basedir: /home/javi/git/Script_hosting
+
+  vars_files:
+    - $repository_basedir/vars/bind/vars.yml
+    
+  tasks:
+    # Install Bind 
+    - include: $repository_basedir/bind/tasks/setup.yml
+  
+    # Manage virtual hosts
+    - include: $repository_basedir/bind/tasks/vhost_add.yml create_docroot=True vhost=bibi.test.vt docroot=bibi.test.vt
+    - include: $repository_basedir/bind/tasks/vhost_del.yml remove_docroot=True vhost=bibi.test.vt docroot=bibi.test.vt
+
+    # Manage apache modules
+    - include: $repository_basedir/bind/tasks/module_enable.yml module=rewrite
+    - include: $repository_basedir/bind/tasks/module_disable.yml module=rewrite
+
+  handlers:
+    - include: $repository_basedir/bind/handlers/handlers.yml

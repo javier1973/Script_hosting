@@ -1,0 +1,21 @@
+# File: crear_bd_usuario.yml
+# Part: MySQL
+#
+# Descripción: Create an DataBase and an user with privileges.
+#
+# DependenciAs ([part:]type:filename):
+# - $vhost variable from ansible playbook.
+#
+# OS: Debian
+
+
+- name : Mysql | Conectarme a la base de datos
+
+- name : Mysql | Crea una base de datos
+  - mysql_user: login_user=root login_password=javi name=sally state=absent
+  - mysql_db: login_user=root login_password=javi name=$vhost state=present
+
+- name : Mysql | Crea una base de datos
+  - mysql_user: login_user=root login_password=javi name=sally state=$vhost
+  - mysql_db: login_user=root login_password=javi name=$vhost state=present  
+  - $vhost.*:ALL
