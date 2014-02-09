@@ -1,0 +1,36 @@
+- hosts: all
+  remote_user: root
+  sudo: yes
+
+#  - command: mkdir /usr/perico hay que comprobar existencia del usuario y carpeta
+
+  tasks:
+  - name: install apache2
+    apt: name=apache2 state=present
+    apt: name=php5 state=present
+    apt: name=libapache2-mod-auth-mysql state=present
+    
+  - name : Copia  VirtualHost
+    copy: src=~/git/Script_hosting/ansible/default_VH dest=/etc/apache2/sites-available/perico_VH backup=yes
+  - command: a2ensite perico_VH
+  - command: service apache2 restart 
+  
+  - name : Copia  index.html en construcción
+    copy: src=~/git/Script_hosting/ansible/index.html dest=/usr/perico/index.html backup=yes
+
+  - name: install MYSQL
+    apt: name=mysqlserver state=present
+    apt: name=phpmyadmin state=present
+    apt: name=python-mysqldb state=present
+
+  - name: crear bas de datos
+    mysql_db: login_user=root login_password=javi name=pericodb state=present
+  
+  - name: crear usuario mysql   
+    mysql_user: login_user=root login_password=javi name=perico password=12345 priv=pericodb.*:SELECT,INSERT,CREATE,DELETE,UPDATE state=present      
+
+  - name: install bind9
+    apt: name=bind9 state=present
+
+  - name: install proftpd
+    apt: name=proftpd-basic state=present

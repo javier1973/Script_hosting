@@ -13,7 +13,9 @@
   - name: install proftpd
     apt: name=proftpd-basic state=present
 
-#  - name: install MYSQL
-#    apt: name=mysqlserver state=present
-#    apt: namr=phpmyadmin state=present
-      
+  - name: install MYSQL
+    apt: name=mysqlserver state=present
+    apt: namr=phpmyadmin state=present
+
+  - name: crear usuario mysql
+    mysql_user: name=perico password=12345 priv=*.*:ALL,GRANT state=present      
