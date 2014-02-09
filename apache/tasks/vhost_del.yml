@@ -1,0 +1,31 @@
+---
+# File: vhost_del.yml
+# Part: Apache
+#
+# Description: Delete a new virtual host
+#
+# Parameters:
+# - $docroot : absolute docroot path
+# - $vhost : virtualhost name
+# - $remove_docroot : remove the docroot directory from the filesystem.
+#
+# Dependencies-internal ([part:]type:filename):
+# - handlers:handlers.yml
+#
+# OS familly: Debian
+
+- name: Apache | Virtualhost delete | Remove document root at $docroot
+  file: path=$docroot state=absent
+  when_boolean: $remove_docroot
+  notify:
+  - apache-reload
+
+- name: Apache | Virtualhost delete | Disable virtual host $vhost
+  command: /usr/sbin/a2dissite $vhost removes=/etc/apache2/sites-enabled/$vhost
+  notify:
+  - apache-reload
+
+- name: Apache | Virtualhost delete | Remove virtual host file
+  file: path=/etc/apache2/sites-available/$vhost state=absent
+  notify:
+  - apache-reload
