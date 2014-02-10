@@ -21,7 +21,7 @@ base = MySQLdb.connect(host="localhost", user="root", passwd="javi", db="proftpd
 cursor = base.cursor()
 
 #realizaremos consulta para comprobar que no existe usuario 
-consulta = "select usuario from proftpd.usuarios where usuario='%s' or dominio='%s';" % (nombre,dominio)
+consulta = "select usuario from proftpd.usuarios where usuario='%s';" % (nombre,dominio)
 cursor.execute(consulta)
 devolucion = cursor.fetchone()
 if devolucion != None:
@@ -50,5 +50,62 @@ else:
         cursor.execute(basereload)
         base.commit()
         
-        ##  ##
+        ## CARPETAS PERSONALES y VIRTUAL HOST##
+        os.system("mkdir /srv/www/%s" % opcion1)
+        os.system("echo Pagina del dominio %s en construccion > /srv/www/%s/index.html" %(dominio,nombre))
+        #creamos vitual host y guardamos en /etc/apache/sites-avaible
+        vhost=open("virtualhosts","r")
+        lista=vhost.read()
+        vhost.close()
+        lista=lista.replace("@dominio@","%s" % dominio)
+        lista=lista.replace("@nombre@","%s" % nombre)
+        #abrimos el modo escritura y crea un nuevo fichero con lo introducido anteriormente
+        s_avaible=open("/etc/apache2/sites-available/%s" % dominio,"w")
+        s_avaible.write(lista)
+        s_avaible.close()
+        
+		## PROFTPD ##
+        #con pwgen obtenemos una contrasena aleatoria de 12 letras y la guardamos en un fichero
+        pass=gen_passw()
+        consulta = "select max(uid) from proftpd.usuarios"
+        cursor.execute(consulta)
+		uid = cursor.fetchone()
+		if uid == None:
+			dui = 4000
+		else:
+			resultado = resultado + 1
+		print "La contraseña de Proftpd para el usuario %s es : %s" % (nombre,pass)
+        #Insetamos al nuevo usuario en la tabla usuarios con la clave encriptada
+        addusuario = "insert into usuarios values ('%s', PASSWORD('%s'), '%s', 6000, '/srv/www/%s','/bin/false',1,'%s');" % (nombre,pass,uid,nombre,dominio)
+        cursor.execute(anadirusua)
+        basereload = "FLUSH PRIVILEGES;"
+        cursor.execute(basereload)
+        base.commit()
+        
+        ## CREAR DNS ##
+        # llemos plantilla nombre zona
+        nombre_zona=open("named.conf.local","r")
+        lista_nombre=nombre_zona.read()
+        nombre_zona.close()
+		#leemos plantilla zona directa
+        zona_directa=open("db.dominio","r")
+        lista_db=zona_directa.read()
+		zona_directa.close()
+        
+        #reemplazamos en el fichero el dominio introducido
+        lista_nombre=lista_nombre.replace("@dominio@","%s" % dominio)
+        
+        #abrimos el fichero en modo añadir y agregamos la nueva zona
+        nombre_zona=open("/etc/bind/named.conf.local","a")
+        nombre_zona.write(lista_nombre)
+        nombre_zona.close()
+        
+        #reemplazamos en el fichero el dominio introducido
+        lista_db=lista_db.replace("@dominio@","%s" % dominio)
+        #abrimos el fichero en modo escritura y lo guardamos con lo modificado antes
+        zona_directa=open("/var/cache/bind/db.%s" % (dominio,"w")
+        zona_directa.write(lista_db)
+        zona_directa.close()
+        os.system("service bind9 restart >/dev/null")
+        
         
