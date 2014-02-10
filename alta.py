@@ -53,7 +53,7 @@ def crea_proftpd():
     cursor.execute(consulta)
 	uid = cursor.fetchone()
 	if uid == None:
-		dui = 4000
+		uid = 4000
 	else:
 		resultado = resultado + 1
 	print "La contraseña de Proftpd para el usuario %s es : %s" % (nombre,pass)
