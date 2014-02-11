@@ -1,0 +1,65 @@
+# -*- coding: utf-8 -*- 
+import os
+import sys
+import MySQLdb
+
+
+def borra_db():
+	borrabase=" drop database %s" % (nombre)
+    cursor.execute(borrabase)
+    #quitamos permisos al usuario
+    quitapermi=" revoke all on *.* from %s@localhost;" % (nombre)
+    cursor.execute(quitapermi)
+    #borramos el usuario
+    borrausua=" drop user %s@localhost" % (nombre)
+    cursor.execute(borrausua)
+    basereload = "FLUSH PRIVILEGES;"
+    cursor.execute(basereload)
+    base.commit()
+
+def borra_proftpd():
+	#eliminamos de la tabla usuarios la linea que tenga el dominio introducido
+    borra_dom="delete from proftpd.usuarios where dominio='%s';" % (dominio)
+    cursor.execute(borra_dom)
+    basereload = "FLUSH PRIVILEGES;"
+    cursor.execute(basereload)
+    base.commit()
+
+def borra_carpeta():
+	#borramos las carpetas del usuario
+    os.system("rm -r /srv/www/%s" % nombre)
+    os.system("a2dissite %s > /dev/null" % dominio)
+    os.system("rm -r /etc/apache2/sites-available/%s" % dominio)
+    os.system("service apache2 restart > /dev/null")
+    os.system("rm -r /etc/apache2/sites-available/phpmyadmin%s" % nombre)
+    os.system("rm -r /var/cache/bind/db.%s" % dominio)
+    #eliminamos del fichero la linea que coincide y las sif¡guiente hasta el segundo contenido que coincide 
+    os.system("sed '/zone " + '"%s"'% dominio + "/,/};/d' /etc/bind/named.conf.local > temporal")
+    os.system("mv temporal /etc/bind/named.conf.local")
+
+
+
+
+#creamos un objeto con las opciones
+
+
+dominio=(sys.argv[1])
+#MySQL
+#Conexion con la base de datos
+base = MySQLdb.connect(host="localhost", user="root", passwd="javi", db="proftpd")
+cursor = base.cursor()
+#Consultamos nombre del propietario del dominio
+consulta = "select usuario from proftpd.usuarios where dominio='%s';" % (dominio)
+cursor.execute(consulta)
+nombre = cursor.fetchone()
+#Obtendremos None si no existe el dominio
+if nombre == None:
+    print "No se puede borrar el dominio, el dominio %s no existe" % (dominio)
+else:
+    #borramos la base de datos
+    borra_bd(nombre,dominio)
+    #borramos usuario con el dominio especificado de base de datos proftpd
+	borra_proftpd(dominio)
+    #borramos carpetas y virtual host de apache
+    borra_carpeta(nombre,dominio)
+    print "el usuario %s con dominio %s se elimino correctamente" % (nombre,dominio)
