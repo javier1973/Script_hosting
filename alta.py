@@ -67,7 +67,7 @@ def crea_proftpd(nombre,dominio):
     basereload = "FLUSH PRIVILEGES;"
     cursor.execute(basereload)
     base.commit()
-    os.system("chmod -R 754 /usr/www/%s" % (uid, uid, nombre))
+    os.system("chmod -R 754 /usr/www/%s" % nombre)
     os.system("chown -R %s:%s /usr/www/%s" % (uid, uid, nombre))
     
 
