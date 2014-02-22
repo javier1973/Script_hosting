@@ -12,7 +12,7 @@ def gen_passw():
 	passw = passw.join([choice(valores) for i in range(longitud)])
 	return passw
 
-def crea_bd(nombre,dominio):	
+def crea_bd(mynombre,dominio):	
 	## creamos Base de datos para el cliente ##
 	pass_mysql=gen_passw()
 	print "A continuación se va a generar la contraseña para mysql"
@@ -22,7 +22,7 @@ def crea_bd(nombre,dominio):
 	crearbase=" create database %s" % (nombre)
 	cursor.execute(crearbase)
     #creamos el usuario y le damos todos los permisos sobre la base de datos creada antes
-	permisosql= "grant all privileges on %s.* to"% (nombre)+ " %s@localhost"% (nombre)+ " identified by "+"'%s'" % (pass_mysql)
+	permisosql= "grant all privileges on %s.* to"% (nombre)+ " %s@localhost"% (mynombre)+ " identified by "+"'%s'" % (pass_mysql)
 	cursor.execute(permisosql)
 	#guardamos y salimos
 	basereload = "FLUSH PRIVILEGES;"
@@ -30,7 +30,7 @@ def crea_bd(nombre,dominio):
 	base.commit()
 
 
-def crea_carpetas(nombre,dominio):
+def crea_carpetas (nombre,dominio):
 	## CARPETAS PERSONALES y VIRTUAL HOST##
     os.system("mkdir /usr/www/%s" % nombre)
     os.system("echo Pagina del dominio %s en construccion > /usr/www/%s/index.html" %(dominio,nombre))
@@ -44,6 +44,15 @@ def crea_carpetas(nombre,dominio):
     s_avaible=open("/etc/apache2/sites-available/%s" % dominio,"w")
     s_avaible.write(lista)
     s_avaible.close()
+    vhost=open("phpmyadmin_vh","r")
+    lista=vhost.read()
+    vhost.close()
+    lista=lista.replace("@dominio@","%s" % dominio)
+    #abrimos el modo escritura y crea un nuevo fichero con lo introducido anteriormente
+    s_avaible=open("/etc/apache2/sites-available/mysql.%s" % dominio,"w")
+    s_avaible.write(lista)
+    s_avaible.close()    
+    os.system("chmod -R 755 /usr/www")
     os.system("a2ensite %s >/dev/null" % dominio)
     os.system("service apache2 restart >/dev/null ")
 
@@ -54,9 +63,11 @@ def crea_proftpd(nombre,dominio):
     consulta = "select max(uid) from proftpd.usuarios"
     cursor.execute(consulta)
     uids = cursor.fetchone()   
-    uid=uids[0] + 1   
-    if uids != None:
-		uid = 1 + uids[0]
+    uid = 4000
+    if (uids != None):
+        uid = uids[0]
+        uid= int(uid) + 1
+
 	
     #Insetamos al nuevo usuario en la tabla usuarios con la clave encriptada
     print "La contraseña de Proftpd para el usuario %s es : %s" % (nombre,pas)
@@ -67,7 +78,7 @@ def crea_proftpd(nombre,dominio):
     basereload = "FLUSH PRIVILEGES;"
     cursor.execute(basereload)
     base.commit()
-    os.system("chmod -R 754 /usr/www/%s" % nombre)
+    os.system("chmod -R 755 /usr/www/%s" % nombre)
     os.system("chown -R %s:%s /usr/www/%s" % (uid, uid, nombre))
     
 
@@ -103,6 +114,8 @@ def crea_dns(nombre,dominio):
 #recogemos los parámetros nombre y dominio
 nombre=(sys.argv[1])
 dominio=(sys.argv[2])
+mynombre='my'+nombre
+
 
 #Realizamo una conexión a la base de datos
 base = MySQLdb.connect(host="localhost", user="root", passwd="javi", db="proftpd")

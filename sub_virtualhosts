@@ -1,0 +1,10 @@
+<VirtualHost *:80>
+        ServerName @url@
+        DocumentRoot /usr/www/@nombre@/subdominio/@subdom@
+        <Directory /usr/www/@nombre@/subdominio/@subdom@>
+                Options Indexes FollowSymLinks MultiViews
+                AllowOverride None
+                Order allow,deny
+                allow from all
+        </Directory>
+</VirtualHost>

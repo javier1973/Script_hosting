@@ -19,15 +19,17 @@ else:
    #creamos carpetas
     os.system("mkdir /usr/www/%s/subdominio" % (nombre))
     os.system("mkdir /usr/www/%s/subdominio/%s" % (nombre,subdom))
+    os.system("chmod -R 755 /usr/www/%s/subdominio/%s" % (nombre,subdom))
     #copiamos index
-    os.system("echo Pagina de %s en construccion  > /srv/www/%s/subdominio/%s/index.html" %(nombre,nombre,subdom))
+    os.system("echo Pagina de %s en construccion  > /usr/www/%s/subdominio/%s/index.html" %(nombre,nombre,subdom))
     #creamos vitual host
-    vhost=open("virtualhosts","r")
+    vhost=open("sub_virtualhosts","r")
     lista=vhost.read()
     vhost.close()
     url=subdom+'.'+dominio
     lista=lista.replace("@dominio@","%s" % url)
     lista=lista.replace("@nombre@","%s" % nombre)
+    lista=lista.replace("@nombre@","%s" % subdom)
     s_avaible=open("/etc/apache2/sites-available/%s" % url,"w")
     s_avaible.write(lista)
     s_avaible.close()

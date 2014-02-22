@@ -3,10 +3,10 @@ import os
 import sys
 import MySQLdb
 
-def borra_db(nombre):
+def borra_db(nombre,mynombre):
 	borrabase=" drop database %s" % (nombre)
 	cursor.execute(borrabase)
-	borrausua=" drop user %s@localhost" % (nombre)
+	borrausua=" drop user %s@localhost" % (mynombre)
 	cursor.execute(borrausua)
 	basereload = "FLUSH PRIVILEGES;"
 	cursor.execute(basereload)
@@ -48,11 +48,12 @@ consulta = "select usuario from proftpd.usuarios where dominio='%s';" % (dominio
 cursor.execute(consulta)
 name = cursor.fetchone()
 nombre= name[0]
+mynombre='my'+nombre
 #Obtendremos None si no existe el dominio
 if name == None:
 	print "No se puede borrar el dominio, el dominio %s no existe" % (dominio)
 else:
-    borra_db(nombre)
+    borra_db(nombre,mynombre)
     borra_proftpd(dominio)
     borra_carpeta(nombre,dominio)
     print "el usuario %s con dominio %s se elimino correctamente" % (nombre,dominio)
